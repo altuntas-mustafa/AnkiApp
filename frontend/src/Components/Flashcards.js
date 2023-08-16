@@ -28,10 +28,8 @@ const Flashcards = () => {
   };
 
   const handleNextCard = () => {
-    if (isFlipped) {
-      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
-      setIsFlipped(false);
-    }
+    setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
+    setIsFlipped(false); // Reset to front side when moving to the next card
   };
 
   if (flashcards.length === 0) {
@@ -50,7 +48,9 @@ const Flashcards = () => {
         </div>
         {isFlipped && (
           <div className="flashcard-content back">
-            <p>{currentFlashcard.back}</p>
+            <p className="front-word">{currentFlashcard.front}</p>
+            <hr  className="line"/>
+            <p className="back-word">{currentFlashcard.back}</p>
             <button onClick={handleNextCard}>Next Card</button>
           </div>
         )}
