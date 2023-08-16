@@ -7,7 +7,7 @@ const Flashcards = () => {
   const { deckName } = useParams();
   const [flashcards, setFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false); // Initialize with front side visible
 
   const formattedDeckName = deckName.toLowerCase().replace(/\s+/g, "-");
 
@@ -18,6 +18,7 @@ const Flashcards = () => {
         const data = response.data;
         setFlashcards(data);
         setCurrentCardIndex(0); // Reset current card index
+        setIsFlipped(false); // Ensure front side is visible when a new deck is loaded
       })
       .catch((error) => console.error("Error fetching flashcards:", error));
   }, [formattedDeckName]);
@@ -27,8 +28,10 @@ const Flashcards = () => {
   };
 
   const handleNextCard = () => {
-    setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
-    setIsFlipped(false);
+    if (isFlipped) {
+      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
+      setIsFlipped(false);
+    }
   };
 
   if (flashcards.length === 0) {
@@ -45,10 +48,12 @@ const Flashcards = () => {
           <p>{currentFlashcard.front}</p>
           <button onClick={handleFlip}>Flip</button>
         </div>
-        <div className="flashcard-content back">
-          <p>{currentFlashcard.back}</p>
-          <button onClick={handleNextCard}>Next Card</button>
-        </div>
+        {isFlipped && (
+          <div className="flashcard-content back">
+            <p>{currentFlashcard.back}</p>
+            <button onClick={handleNextCard}>Next Card</button>
+          </div>
+        )}
       </div>
     </div>
   );
