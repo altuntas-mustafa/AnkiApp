@@ -13,7 +13,7 @@ const Flashcards = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/api/deck/${formattedDeckName}`)
+      .get(`https://anki-app-exau.vercel.app/api/deck/${formattedDeckName}`)
       .then((response) => {
         const data = response.data;
         setFlashcards(data);

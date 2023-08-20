@@ -7,7 +7,7 @@ const Deck = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/api/decks")
+      .get("https://anki-app-exau.vercel.app/api/decks")
       .then((response) => {
         const data = response.data;
         setDecks(data);
