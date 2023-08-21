@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams, Link, useHistory } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import "./FlashCards.css";
 
 const Flashcards = () => {
   const { deckName } = useParams();
-  console.log("object");
+
+
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [completed, setCompleted] = useState(false);
 
   const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
@@ -23,9 +23,7 @@ const Flashcards = () => {
     if (currentCardIndex < shuffledFlashcards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
-    } else {
-      setCompleted(true);
-    }
+    } 
   };
 
   useEffect(() => {
@@ -40,7 +38,6 @@ const Flashcards = () => {
           setShuffledFlashcards(shuffleArray(data)); // Shuffle the flashcards
           setCurrentCardIndex(0);
           setIsFlipped(false);
-          setCompleted(false);
         }
       })
       .catch((error) => console.error("Error fetching flashcards:", error));
