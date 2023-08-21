@@ -78,27 +78,35 @@ app.get("/", async (req, res) => {
 
 app.post("/api/create-deck", async (req, res) => {
   try {
-    console.log(req.body);
     const jsonData = req.body;
 
     const deckName = jsonData.deckName;
-    const language = jsonData.language; // Get the language from JSON
+    const language = jsonData.language;
     const cards = jsonData.cards;
 
-    // Create the deck
-    const deckRef = db.collection("decks").doc(deckName);
+    // Check if the language already exists
+    const languageRef = db.collection("languages").doc(language);
+    const languageDoc = await languageRef.get();
+
+    if (!languageDoc.exists) {
+      // Create the language document if it doesn't exist
+      await languageRef.set({});
+    }
+
+    // Create the deck document inside the language's "decks" subcollection
+    const deckRef = languageRef.collection("decks").doc(deckName);
     await deckRef.set({
       name: deckName
     });
 
-    // Add cards to the language-specific collection
-    const languageCollectionRef = deckRef.collection(language); // Use language as the collection name
+    // Add cards to the deck's "flashcards" subcollection
+    const flashcardsCollectionRef = deckRef.collection("flashcards");
 
     for (const card of cards) {
-      const front = card.front[language]; // Access front translation for the specified language
-      const back = card.back[language];   // Access back translation for the specified language
+      const front = card.front;
+      const back = card.back;
 
-      await languageCollectionRef.add({
+      await flashcardsCollectionRef.add({
         front,
         back
       });
