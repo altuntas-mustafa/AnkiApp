@@ -40,12 +40,49 @@ app.get("/", async (req, res) => {
   }
 });
 
+// app.post("/api/create-deck", async (req, res) => {
+//   try {
+//     console.log(req.body);
+//     const jsonData = req.body;
+
+//     const deckName = jsonData.deckName;
+//     const cards = jsonData.cards;
+
+//     // Create the deck
+//     const deckRef = db.collection("decks").doc(deckName);
+//     await deckRef.set({
+//       name: deckName
+//     });
+
+//     // Add cards to the deck
+//     for (const card of cards) {
+//       const front = card.front;
+//       const back = card.back;
+
+//       await deckRef.collection("flashcards").add({
+//         front,
+//         back
+//       });
+//     }
+
+//     res.status(201).json({
+//       message: "Deck and cards created successfully"
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Internal Server Error"
+//     });
+//   }
+// });
+
 app.post("/api/create-deck", async (req, res) => {
   try {
     console.log(req.body);
     const jsonData = req.body;
 
     const deckName = jsonData.deckName;
+    const language = jsonData.language; // Get the language from JSON
     const cards = jsonData.cards;
 
     // Create the deck
@@ -54,12 +91,14 @@ app.post("/api/create-deck", async (req, res) => {
       name: deckName
     });
 
-    // Add cards to the deck
-    for (const card of cards) {
-      const front = card.front;
-      const back = card.back;
+    // Add cards to the language-specific collection
+    const languageCollectionRef = deckRef.collection(language); // Use language as the collection name
 
-      await deckRef.collection("flashcards").add({
+    for (const card of cards) {
+      const front = card.front[language]; // Access front translation for the specified language
+      const back = card.back[language];   // Access back translation for the specified language
+
+      await languageCollectionRef.add({
         front,
         back
       });
@@ -75,6 +114,7 @@ app.post("/api/create-deck", async (req, res) => {
     });
   }
 });
+
 
 app.get("/api/decks", async (req, res) => {
   try {
@@ -119,46 +159,6 @@ app.get("/api/deck/:deckName", async (req, res) => {
 });
 
 
-app.get("/api/flashcards/random", async (req, res) => {
-  try {
-    const snapshot = await db.collection("flashcards").get();
-    const flashcards = [];
-    snapshot.forEach((doc) => {
-      flashcards.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    const randomIndex = Math.floor(Math.random() * flashcards.length);
-    res.json(flashcards[randomIndex]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Internal Server Error"
-    });
-  }
-});
-
-app.post("/api/flashcards", async (req, res) => {
-  try {
-    const {
-      word,
-      definition
-    } = req.body;
-    await db.collection("flashcards").add({
-      word,
-      definition
-    });
-    res.status(201).json({
-      message: "Flashcard created successfully"
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Internal Server Error"
-    });
-  }
-});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
