@@ -17,6 +17,7 @@ const serviceAccount = {
   "universe_domain": "googleapis.com"
 };
 
+
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -39,42 +40,6 @@ app.get("/", async (req, res) => {
     });
   }
 });
-
-// app.post("/api/create-deck", async (req, res) => {
-//   try {
-//     console.log(req.body);
-//     const jsonData = req.body;
-
-//     const deckName = jsonData.deckName;
-//     const cards = jsonData.cards;
-
-//     // Create the deck
-//     const deckRef = db.collection("decks").doc(deckName);
-//     await deckRef.set({
-//       name: deckName
-//     });
-
-//     // Add cards to the deck
-//     for (const card of cards) {
-//       const front = card.front;
-//       const back = card.back;
-
-//       await deckRef.collection("flashcards").add({
-//         front,
-//         back
-//       });
-//     }
-
-//     res.status(201).json({
-//       message: "Deck and cards created successfully"
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       error: "Internal Server Error"
-//     });
-//   }
-// });
 
 app.post("/api/create-deck", async (req, res) => {
   try {
@@ -123,10 +88,32 @@ app.post("/api/create-deck", async (req, res) => {
   }
 });
 
-
-app.get("/api/decks", async (req, res) => {
+app.get("/api/languages", async (req, res) => {
   try {
-    const decksSnapshot = await db.collection("decks").get();
+    const languagesSnapshot = await db.collection("languages").get();
+    const languages = [];
+    languagesSnapshot.forEach((doc) => {
+      languages.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    res.json(languages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Internal Server Error"
+    });
+  }
+});
+
+app.get("/api/language/:language/decks", async (req, res) => {
+  try {
+    const language = req.params.language;
+
+    const languageRef = db.collection("languages").doc(language);
+    const decksSnapshot = await languageRef.collection("decks").get();
+
     const decks = [];
     decksSnapshot.forEach((doc) => {
       decks.push({
@@ -134,6 +121,7 @@ app.get("/api/decks", async (req, res) => {
         ...doc.data()
       });
     });
+
     res.json(decks);
   } catch (error) {
     console.error(error);
@@ -142,11 +130,14 @@ app.get("/api/decks", async (req, res) => {
     });
   }
 });
-app.get("/api/deck/:deckName", async (req, res) => {
+
+app.get("/api/language/:language/deck/:deckName", async (req, res) => {
   try {
+    const language = req.params.language;
     const deckName = req.params.deckName;
 
-    const deckRef = db.collection("decks").doc(deckName);
+    const deckRef = db.collection("languages").doc(language)
+                    .collection("decks").doc(deckName);
     const flashcardsSnapshot = await deckRef.collection("flashcards").get();
 
     const flashcards = [];
@@ -165,8 +156,6 @@ app.get("/api/deck/:deckName", async (req, res) => {
     });
   }
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

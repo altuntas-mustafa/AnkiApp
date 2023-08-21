@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setOrder, setDisplayOrder } from "../redux/reducers";
 
 const Deck = () => {
-  const [decks, setDecks] = useState([]);
+  const [languages, setLanguages] = useState([]);
   const dispatch = useDispatch();
 
   // Get state values from Redux
@@ -14,12 +14,12 @@ const Deck = () => {
 
   useEffect(() => {
     axios
-      .get("https://anki-app-exau.vercel.app/api/decks")
+      .get("https://anki-app-exau.vercel.app/api/languages")
       .then((response) => {
         const data = response.data;
-        setDecks(data);
+        setLanguages(data);
       })
-      .catch((error) => console.error("Error fetching decks:", error));
+      .catch((error) => console.error("Error fetching languages:", error));
   }, []);
 
   const handleRandomOrderToggle = () => {
@@ -34,7 +34,7 @@ const Deck = () => {
 
   return (
     <div className="deck-container">
-      <h2>Deck Page</h2>
+      <h2>Language and Deck Page</h2>
       <div>
         <label>
           Random Order:{" "}
@@ -53,12 +53,22 @@ const Deck = () => {
           />
         </label>
       </div>
-      <ul className="deck-list">
-        {decks.map((deck) => (
-          <li key={deck.id}>
-            <Link to={`/decks/${encodeURIComponent(deck.name)}`} className="deck-link">
-              {deck.name}
-            </Link>
+      <ul className="language-list">
+        {languages.map((language) => (
+          <li key={language.id}>
+            <h3>{language.id}</h3>
+            <ul className="deck-list">
+              {language.decks.map((deck) => (
+                <li key={deck.id}>
+                  <Link
+                    to={`/decks/${encodeURIComponent(language.id)}/${encodeURIComponent(deck.name)}`}
+                    className="deck-link"
+                  >
+                    {deck.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </li>
         ))}
       </ul>
