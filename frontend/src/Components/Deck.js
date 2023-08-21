@@ -14,13 +14,13 @@ const Deck = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/api/languages") // Fetch languages instead of decks
+      .get("https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages") // Fetch languages instead of decks
       .then(async (response) => {
         const data = response.data;
 
         // Fetch decks for each language
         const languagesWithDecks = await Promise.all(data.map(async (language) => {
-          const response = await axios.get(`http://localhost:3001/api/languages/${encodeURIComponent(language.id)}/decks`);
+          const response = await axios.get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/${encodeURIComponent(language.id)}/decks`);
           return {
             ...language,
             decks: response.data

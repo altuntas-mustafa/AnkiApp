@@ -36,7 +36,7 @@ const Flashcards = () => {
     let isMounted = true;
 
     axios
-      .get(`http://localhost:3001/api/languages/Dutch/decks/${encodeURIComponent(deckName)}`)
+      .get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/Dutch/decks/${encodeURIComponent(deckName)}`)
       .then((response) => {
         const data = response.data.flashcards; // Access the flashcards array
         const flashcards = isRandomOrder ? shuffleArray(data) : data;
