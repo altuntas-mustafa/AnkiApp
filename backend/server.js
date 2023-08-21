@@ -94,10 +94,9 @@ app.get("/api/decks", async (req, res) => {
     });
   }
 });
-
-app.get("/api/deck/family-members", async (req, res) => {
+app.get("/api/deck/:deckName", async (req, res) => {
   try {
-    const deckName = "Family Members";
+    const deckName = req.params.deckName;
 
     const deckRef = db.collection("decks").doc(deckName);
     const flashcardsSnapshot = await deckRef.collection("flashcards").get();
@@ -118,6 +117,7 @@ app.get("/api/deck/family-members", async (req, res) => {
     });
   }
 });
+
 
 app.get("/api/flashcards/random", async (req, res) => {
   try {
