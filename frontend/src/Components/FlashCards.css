@@ -55,13 +55,6 @@
   margin: 0;
 }
 
-.button-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* margin-top: 10px; */
-}
-
 button {
   padding: 8px 12px;
   background-color: #f2f2f2;
@@ -70,7 +63,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  /* margin-top: 10px; */
+  margin-bottom: 10px;
 }
 
 button:hover {
@@ -87,4 +80,22 @@ button:hover {
 }
 .back-word{
     margin-top: -10px;
+}
+.viewDeck {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background-color: #4b48f8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.viewDeck:hover {
+  background-color: #e71212;
 }
