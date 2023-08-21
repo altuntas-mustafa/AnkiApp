@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { Provider } from 'react-redux'; // Import Provider from react-redux
-import store from '../src/redux/store'; // Import the Redux store
+import { Provider } from 'react-redux';
+import store from '../src/redux/store';
 import Deck from './Components/Deck';
-import Flashcards from './Components/Flashcards'; // Import the Flashcards component
-import './App.css'; // Import the external CSS file
+import Flashcards from './Components/Flashcards';
+import './App.css';
 
 function App() {
   return (
-    <Provider store={store}> {/* Wrap the entire app with the Provider component */}
+    <Provider store={store}>
       <Router>
         <div className="content">
           <nav className="navbar">
@@ -22,7 +22,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/decks" element={<Deck />} />
-            <Route path="/decks/:deckName" element={<Flashcards />} /> {/* Add this route */}
+            <Route path="/languages/:language/decks/:deckName" element={<Flashcards />} /> {/* Update this route */}
           </Routes>
         </div>
       </Router>

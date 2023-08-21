@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setOrder, setDisplayOrder } from "../redux/reducers";
 
 const Deck = () => {
-  const [languages, setLanguages] = useState([]);
+  const [languages, setLanguages] = useState([]); // Corrected variable name
   const dispatch = useDispatch();
 
   // Get state values from Redux
@@ -14,10 +14,20 @@ const Deck = () => {
 
   useEffect(() => {
     axios
-      .get("https://anki-app-exau.vercel.app/api/languages")
-      .then((response) => {
+      .get("http://localhost:3001/api/languages") // Fetch languages instead of decks
+      .then(async (response) => {
         const data = response.data;
-        setLanguages(data);
+
+        // Fetch decks for each language
+        const languagesWithDecks = await Promise.all(data.map(async (language) => {
+          const response = await axios.get(`http://localhost:3001/api/languages/${encodeURIComponent(language.id)}/decks`);
+          return {
+            ...language,
+            decks: response.data
+          };
+        }));
+
+        setLanguages(languagesWithDecks); // Update state with fetched languages and decks
       })
       .catch((error) => console.error("Error fetching languages:", error));
   }, []);
@@ -34,7 +44,7 @@ const Deck = () => {
 
   return (
     <div className="deck-container">
-      <h2>Language and Deck Page</h2>
+      <h1>Language Page</h1> {/* Updated heading */}
       <div>
         <label>
           Random Order:{" "}
@@ -53,17 +63,14 @@ const Deck = () => {
           />
         </label>
       </div>
-      <ul className="language-list">
+      <ul className="language-list"> {/* Updated class name */}
         {languages.map((language) => (
           <li key={language.id}>
-            <h3>{language.id}</h3>
+            <h2>{language.id}</h2>
             <ul className="deck-list">
               {language.decks.map((deck) => (
                 <li key={deck.id}>
-                  <Link
-                    to={`/decks/${encodeURIComponent(language.id)}/${encodeURIComponent(deck.name)}`}
-                    className="deck-link"
-                  >
+                  <Link to={`/languages/${encodeURIComponent(language.id)}/decks/${encodeURIComponent(deck.name)}`} className="deck-link">
                     {deck.name}
                   </Link>
                 </li>

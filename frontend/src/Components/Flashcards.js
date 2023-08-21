@@ -5,7 +5,7 @@ import "./FlashCards.css";
 import { useSelector } from "react-redux";
 
 const Flashcards = () => {
-  const { deckName } = useParams();
+  const { deckName, languageName } = useParams();
 
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -33,25 +33,22 @@ const Flashcards = () => {
   };
 
   useEffect(() => {
-    // Define a variable to track if the component is mounted
     let isMounted = true;
 
     axios
-      .get(`https://anki-app-exau.vercel.app/api/deck/${deckName}`)
+      .get(`http://localhost:3001/api/languages/Dutch/decks/${encodeURIComponent(deckName)}`)
       .then((response) => {
-        const data = response.data;
-        // Apply "Random Order" rule
+        const data = response.data.flashcards; // Access the flashcards array
         const flashcards = isRandomOrder ? shuffleArray(data) : data;
 
         if (isMounted) {
-          setShuffledFlashcards(flashcards); // Shuffle the flashcards
+          setShuffledFlashcards(flashcards);
           setCurrentCardIndex(0);
           setIsFlipped(false);
         }
       })
       .catch((error) => console.error("Error fetching flashcards:", error));
 
-    // Cleanup function to handle unmounting
     return () => {
       isMounted = false;
     };

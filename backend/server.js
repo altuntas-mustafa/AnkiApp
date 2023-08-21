@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const bodyParser = require("body-parser");
 
 const serviceAccount = {
   "type": "service_account",
@@ -16,7 +15,6 @@ const serviceAccount = {
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-9lozt%40ankiapp-clone.iam.gserviceaccount.com",
   "universe_domain": "googleapis.com"
 };
-
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -49,32 +47,23 @@ app.post("/api/create-deck", async (req, res) => {
     const language = jsonData.language;
     const cards = jsonData.cards;
 
-    // Check if the language already exists
     const languageRef = db.collection("languages").doc(language);
     const languageDoc = await languageRef.get();
 
     if (!languageDoc.exists) {
-      // Create the language document if it doesn't exist
       await languageRef.set({});
     }
 
-    // Create the deck document inside the language's "decks" subcollection
     const deckRef = languageRef.collection("decks").doc(deckName);
-    await deckRef.set({
-      name: deckName
-    });
+    await deckRef.set({ name: deckName });
 
-    // Add cards to the deck's "flashcards" subcollection
     const flashcardsCollectionRef = deckRef.collection("flashcards");
 
     for (const card of cards) {
       const front = card.front;
       const back = card.back;
 
-      await flashcardsCollectionRef.add({
-        front,
-        back
-      });
+      await flashcardsCollectionRef.add({ front, back });
     }
 
     res.status(201).json({
@@ -91,13 +80,10 @@ app.post("/api/create-deck", async (req, res) => {
 app.get("/api/languages", async (req, res) => {
   try {
     const languagesSnapshot = await db.collection("languages").get();
-    const languages = [];
-    languagesSnapshot.forEach((doc) => {
-      languages.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
+    const languages = languagesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.json(languages);
   } catch (error) {
     console.error(error);
@@ -107,20 +93,16 @@ app.get("/api/languages", async (req, res) => {
   }
 });
 
-app.get("/api/language/:language/decks", async (req, res) => {
+app.get("/api/languages/:language/decks", async (req, res) => {
   try {
     const language = req.params.language;
-
     const languageRef = db.collection("languages").doc(language);
-    const decksSnapshot = await languageRef.collection("decks").get();
 
-    const decks = [];
-    decksSnapshot.forEach((doc) => {
-      decks.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
+    const decksSnapshot = await languageRef.collection("decks").get();
+    const decks = decksSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
     res.json(decks);
   } catch (error) {
@@ -131,15 +113,23 @@ app.get("/api/language/:language/decks", async (req, res) => {
   }
 });
 
-app.get("/api/language/:language/deck/:deckName", async (req, res) => {
+app.get("/api/languages/:language/decks/:deckName", async (req, res) => {
   try {
     const language = req.params.language;
     const deckName = req.params.deckName;
 
-    const deckRef = db.collection("languages").doc(language)
-                    .collection("decks").doc(deckName);
-    const flashcardsSnapshot = await deckRef.collection("flashcards").get();
+    const languageRef = db.collection("languages").doc(language);
+    const deckRef = languageRef.collection("decks").doc(deckName);
 
+    const deckSnapshot = await deckRef.get();
+    if (!deckSnapshot.exists) {
+      return res.status(404).json({
+        error: "Deck not found"
+      });
+    }
+
+    // Fetch flashcards from the deck's "flashcards" subcollection
+    const flashcardsSnapshot = await deckRef.collection("flashcards").get();
     const flashcards = [];
     flashcardsSnapshot.forEach((doc) => {
       flashcards.push({
@@ -148,7 +138,13 @@ app.get("/api/language/:language/deck/:deckName", async (req, res) => {
       });
     });
 
-    res.json(flashcards);
+    // Include flashcards in the response data
+    const deckData = {
+      name: deckSnapshot.data().name,
+      flashcards: flashcards
+    };
+
+    res.json(deckData);
   } catch (error) {
     console.error(error);
     res.status(500).json({
