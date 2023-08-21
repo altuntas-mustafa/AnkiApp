@@ -2,14 +2,20 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 import "./FlashCards.css";
+import { useSelector } from "react-redux";
 
 const Flashcards = () => {
   const { deckName } = useParams();
 
-
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Get state values from Redux
+  const isRandomOrder = useSelector((state) => state.flashcards.isRandomOrder);
+  const isFrontDisplayed = useSelector(
+    (state) => state.flashcards.isFrontDisplayed
+  );
 
   const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
@@ -23,7 +29,7 @@ const Flashcards = () => {
     if (currentCardIndex < shuffledFlashcards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -34,8 +40,11 @@ const Flashcards = () => {
       .get(`https://anki-app-exau.vercel.app/api/deck/${deckName}`)
       .then((response) => {
         const data = response.data;
+        // Apply "Random Order" rule
+        const flashcards = isRandomOrder ? shuffleArray(data) : data;
+
         if (isMounted) {
-          setShuffledFlashcards(shuffleArray(data)); // Shuffle the flashcards
+          setShuffledFlashcards(flashcards); // Shuffle the flashcards
           setCurrentCardIndex(0);
           setIsFlipped(false);
         }
@@ -56,13 +65,18 @@ const Flashcards = () => {
   const isLastFlashcard = currentCardIndex === shuffledFlashcards.length - 1;
 
   return (
-    <div className="flashcards-container">  
+    <div className="flashcards-container">
       <h2>{deckName}</h2>
       <div className={`flashcard ${isFlipped ? "flipped" : ""}`}>
         <div className="flashcard-content front">
-          <p>{currentFlashcard.front}</p>
+          {isFrontDisplayed && Math.random() < 0.5 ? (
+            <p>{currentFlashcard.back}</p>
+          ) : (
+            <p>{currentFlashcard.front}</p>
+          )}
           <button onClick={handleFlip}>Flip</button>
         </div>
+
         {isFlipped && (
           <div className="flashcard-content back">
             <p className="front-word">{currentFlashcard.front}</p>
