@@ -34,12 +34,10 @@ const Deck = () => {
 
   const handleRandomOrderToggle = () => {
     dispatch(setOrder(!isRandomOrder));
-    console.log("Random Order Toggle:", !isRandomOrder);
   };
 
   const handleRandomSideToggle = () => {
     dispatch(setDisplayOrder(!isFrontDisplayed));
-    console.log("Random Side Toggle:", !isFrontDisplayed);
   };
 
   return (

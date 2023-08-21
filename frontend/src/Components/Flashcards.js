@@ -5,7 +5,7 @@ import "./FlashCards.css";
 import { useSelector } from "react-redux";
 
 const Flashcards = () => {
-  const { deckName, languageName } = useParams();
+  const { deckName } = useParams();
 
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);

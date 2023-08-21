@@ -5,8 +5,10 @@ import store from '../src/redux/store';
 import Deck from './Components/Deck';
 import Flashcards from './Components/Flashcards';
 import './App.css';
+import translateText from './ExternalApi/translateApi';
 
 function App() {
+  translateText();
   return (
     <Provider store={store}>
       <Router>
