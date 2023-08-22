@@ -1,79 +1,74 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setOrder, setDisplayOrder } from "../redux/reducers";
+import { collection, getDocs} from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
-const Deck = () => {
-  const [languages, setLanguages] = useState([]); // Corrected variable name
-  const dispatch = useDispatch();
+const LanguagePage = () => {
+  const [decks, setDecks] = useState([]);
 
-  // Get state values from Redux
-  const isRandomOrder = useSelector((state) => state.flashcards.isRandomOrder);
-  const isFrontDisplayed = useSelector((state) => state.flashcards.isFrontDisplayed);
+  async function fetchDecks() {
+    const decksCollectionRef = collection(db, "languages/Dutch/decks");
+
+    try {
+      const decksQuerySnapshot = await getDocs(decksCollectionRef);
+      const decksData = [];
+
+      for (const deckDoc of decksQuerySnapshot.docs) {
+        const deckId = deckDoc.id;
+
+        const flashcardsCollectionRef = collection(
+          db,
+          `languages/Dutch/decks/${deckId}/flashcards`
+        );
+
+        const flashcardsQuerySnapshot = await getDocs(flashcardsCollectionRef);
+        const flashcardsData = [];
+
+        flashcardsQuerySnapshot.forEach((flashcardDoc) => {
+          flashcardsData.push({ id: flashcardDoc.id, ...flashcardDoc.data() });
+        });
+
+        decksData.push({
+          id: deckId,
+          flashcards: flashcardsData,
+          isExpanded: false, // Initialize as not expanded
+        });
+      }
+
+      setDecks(decksData);
+    } catch (error) {
+      console.error("Error fetching decks and flashcards:", error);
+    }
+  }
 
   useEffect(() => {
-    axios
-      .get("https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages") // Fetch languages instead of decks
-      .then(async (response) => {
-        const data = response.data;
-
-        // Fetch decks for each language
-        const languagesWithDecks = await Promise.all(data.map(async (language) => {
-          const response = await axios.get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/${encodeURIComponent(language.id)}/decks`);
-          return {
-            ...language,
-            decks: response.data
-          };
-        }));
-
-        setLanguages(languagesWithDecks); // Update state with fetched languages and decks
-      })
-      .catch((error) => console.error("Error fetching languages:", error));
+    fetchDecks();
   }, []);
 
-  const handleRandomOrderToggle = () => {
-    dispatch(setOrder(!isRandomOrder));
-  };
-
-  const handleRandomSideToggle = () => {
-    dispatch(setDisplayOrder(!isFrontDisplayed));
+  const toggleFlashcards = (deckId) => {
+    setDecks((prevDecks) =>
+      prevDecks.map((deck) => {
+        if (deck.id === deckId) {
+          return { ...deck, isExpanded: !deck.isExpanded };
+        }
+        return deck;
+      })
+    );
   };
 
   return (
-    <div className="deck-container">
-      <h1>Language Page</h1> {/* Updated heading */}
-      <div>
-        <label>
-          Random Order:{" "}
-          <input
-            type="checkbox"
-            checked={isRandomOrder}
-            onChange={handleRandomOrderToggle}
-          />
-        </label>
-        <label>
-          Random Side:{" "}
-          <input
-            type="checkbox"
-            checked={isFrontDisplayed}
-            onChange={handleRandomSideToggle}
-          />
-        </label>
-      </div>
-      <ul className="language-list"> {/* Updated class name */}
-        {languages.map((language) => (
-          <li key={language.id}>
-            <h2>{language.id}</h2>
-            <ul className="deck-list">
-              {language.decks.map((deck) => (
-                <li key={deck.id}>
-                  <Link to={`/languages/${encodeURIComponent(language.id)}/decks/${encodeURIComponent(deck.name)}`} className="deck-link">
-                    {deck.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+    <div>
+      <h1>Decks and Flashcards</h1>
+      <ul>
+        {decks.map((deck) => (
+          <li key={deck.id}>
+            <h2 onClick={() => toggleFlashcards(deck.id)}>{deck.id}</h2>
+            {deck.isExpanded && (
+              <ul>
+                {deck.flashcards.map((flashcard) => (
+                  <li key={flashcard.id}>{flashcard.back}</li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>
@@ -81,4 +76,4 @@ const Deck = () => {
   );
 };
 
-export default Deck;
+export default LanguagePage;
