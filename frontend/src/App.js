@@ -1,14 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from '../src/redux/store';
 import Deck from './Components/Deck';
 import Flashcards from './Components/Flashcards';
 import './App.css';
-import translateText from './ExternalApi/translateApi';
 
 function App() {
-  translateText();
   return (
     <Provider store={store}>
       <Router>
@@ -33,6 +31,7 @@ function App() {
 }
 
 function Home() {
+  
   return (
     <div>
       <h1 className="home-title">Home Page</h1>

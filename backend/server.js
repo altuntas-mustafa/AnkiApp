@@ -116,6 +116,8 @@ app.get("/api/languages/:language/decks", async (req, res) => {
 app.get("/api/languages/:language/decks/:deckName", async (req, res) => {
   try {
     const language = req.params.language;
+    console.log(language);
+
     const deckName = req.params.deckName;
 
     const languageRef = db.collection("languages").doc(language);
