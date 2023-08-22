@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
-import "./FlashCards.css";
+import "../CSS/FlashCards.css"
 import { useSelector } from "react-redux";
 
 const Flashcards = () => {

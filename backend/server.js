@@ -39,6 +39,43 @@ app.get("/", async (req, res) => {
   }
 });
 
+// app.post("/api/create-deck", async (req, res) => {
+//   try {
+//     const jsonData = req.body;
+
+//     const deckName = jsonData.deckName;
+//     const language = jsonData.language;
+//     const cards = jsonData.cards;
+
+//     const languageRef = db.collection("languages").doc(language);
+//     const languageDoc = await languageRef.get();
+
+//     if (!languageDoc.exists) {
+//       await languageRef.set({});
+//     }
+
+//     const deckRef = languageRef.collection("decks").doc(deckName);
+//     await deckRef.set({ name: deckName });
+
+//     const flashcardsCollectionRef = deckRef.collection("flashcards");
+
+//     for (const card of cards) {
+//       const front = card.front;
+//       const back = card.back;
+
+//       await flashcardsCollectionRef.add({ front, back });
+//     }
+
+//     res.status(201).json({
+//       message: "Deck and cards created successfully"
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Internal Server Error"
+//     });
+//   }
+// });
 app.post("/api/create-deck", async (req, res) => {
   try {
     const jsonData = req.body;
@@ -46,6 +83,18 @@ app.post("/api/create-deck", async (req, res) => {
     const deckName = jsonData.deckName;
     const language = jsonData.language;
     const cards = jsonData.cards;
+
+    if (!deckName || !language) {
+      return res.status(400).json({
+        error: "Deck name and language are required."
+      });
+    }
+
+    if (cards.length < 2 || cards.some(card => !card.front || !card.back)) {
+      return res.status(400).json({
+        error: "At least 2 front and back words are required for each card."
+      });
+    }
 
     const languageRef = db.collection("languages").doc(language);
     const languageDoc = await languageRef.get();
@@ -55,6 +104,14 @@ app.post("/api/create-deck", async (req, res) => {
     }
 
     const deckRef = languageRef.collection("decks").doc(deckName);
+    const deckDoc = await deckRef.get();
+
+    if (deckDoc.exists) {
+      return res.status(400).json({
+        error: "A deck with this name already exists in the specified language. Please choose a different name."
+      });
+    }
+
     await deckRef.set({ name: deckName });
 
     const flashcardsCollectionRef = deckRef.collection("flashcards");

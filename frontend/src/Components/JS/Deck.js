@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setOrder, setDisplayOrder } from "../redux/reducers";
-import "./Deck.css";
+import { setOrder, setDisplayOrder } from "../../redux/reducers";
+import "../CSS/Deck.css"
 
 const Deck = () => {
   const [languages, setLanguages] = useState([]);
