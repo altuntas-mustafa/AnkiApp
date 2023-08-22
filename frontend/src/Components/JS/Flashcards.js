@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
-import "./FlashCards.css";
+import "../CSS/FlashCards.css"
 import { useSelector } from "react-redux";
 
 const Flashcards = () => {
-  const { deckName } = useParams();
-
+  const { deckName, language } = useParams();
+  
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -36,7 +36,7 @@ const Flashcards = () => {
     let isMounted = true;
 
     axios
-      .get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/Dutch/decks/${encodeURIComponent(deckName)}`)
+      .get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/${language}/decks/${encodeURIComponent(deckName)}`)
       .then((response) => {
         const data = response.data.flashcards; // Access the flashcards array
         const flashcards = isRandomOrder ? shuffleArray(data) : data;

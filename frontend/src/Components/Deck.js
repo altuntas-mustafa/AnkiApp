@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs} from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
-const LanguagePage = () => {
+const Deck = () => {
   const [decks, setDecks] = useState([]);
 
   async function fetchDecks() {
@@ -76,4 +76,4 @@ const LanguagePage = () => {
   );
 };
 
-export default LanguagePage;
+export default Deck;
