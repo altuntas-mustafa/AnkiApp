@@ -1,24 +1,25 @@
+// Deck.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrder, setDisplayOrder } from "../redux/reducers";
+import "./Deck.css";
 
 const Deck = () => {
-  const [languages, setLanguages] = useState([]); // Corrected variable name
+  const [languages, setLanguages] = useState([]);
   const dispatch = useDispatch();
 
-  // Get state values from Redux
   const isRandomOrder = useSelector((state) => state.flashcards.isRandomOrder);
   const isFrontDisplayed = useSelector((state) => state.flashcards.isFrontDisplayed);
 
   useEffect(() => {
     axios
-      .get("https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages") // Fetch languages instead of decks
+      .get("https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages")
       .then(async (response) => {
         const data = response.data;
 
-        // Fetch decks for each language
         const languagesWithDecks = await Promise.all(data.map(async (language) => {
           const response = await axios.get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/${encodeURIComponent(language.id)}/decks`);
           return {
@@ -27,7 +28,7 @@ const Deck = () => {
           };
         }));
 
-        setLanguages(languagesWithDecks); // Update state with fetched languages and decks
+        setLanguages(languagesWithDecks);
       })
       .catch((error) => console.error("Error fetching languages:", error));
   }, []);
@@ -42,7 +43,7 @@ const Deck = () => {
 
   return (
     <div className="deck-container">
-      <h1>Language Page</h1> {/* Updated heading */}
+      <h1>Language Page</h1>
       <div>
         <label>
           Random Order:{" "}
@@ -61,10 +62,10 @@ const Deck = () => {
           />
         </label>
       </div>
-      <ul className="language-list"> {/* Updated class name */}
+      <ul className="language-list">
         {languages.map((language) => (
-          <li key={language.id}>
-            <h2>{language.id}</h2>
+          <li key={language.id} className="language-container">
+            <h2 className="language-name">{language.id}</h2>
             <ul className="deck-list">
               {language.decks.map((deck) => (
                 <li key={deck.id}>
