@@ -19,7 +19,7 @@ const Deck = () => {
           db,
           `languages/Dutch/decks/${deckId}/flashcards`
         );
-
+        
         const flashcardsQuerySnapshot = await getDocs(flashcardsCollectionRef);
         const flashcardsData = [];
 
