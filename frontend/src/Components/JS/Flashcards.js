@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 import { useParams, Link } from "react-router-dom";
-import "../CSS/FlashCards.css"
 import { useSelector } from "react-redux";
+import "../CSS/FlashCards.css";
 
 const Flashcards = () => {
   const { deckName, language } = useParams();
-  
   const [shuffledFlashcards, setShuffledFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Get state values from Redux
   const isRandomOrder = useSelector((state) => state.flashcards.isRandomOrder);
-  const isFrontDisplayed = useSelector(
-    (state) => state.flashcards.isFrontDisplayed
-  );
+  const isFrontDisplayed = useSelector((state) => state.flashcards.isFrontDisplayed);
 
   const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
@@ -35,24 +32,32 @@ const Flashcards = () => {
   useEffect(() => {
     let isMounted = true;
 
-    axios
-      .get(`https://ankiappclone-git-main-mustafa-altuntas.vercel.app/api/languages/${language}/decks/${encodeURIComponent(deckName)}`)
-      .then((response) => {
-        const data = response.data.flashcards; // Access the flashcards array
-        const flashcards = isRandomOrder ? shuffleArray(data) : data;
+    const fetchFlashcards = async () => {
+      const flashcardsCollectionRef = collection(db, `languages/${language}/decks/${deckName}/flashcards`);
+      const flashcardsQuerySnapshot = await getDocs(flashcardsCollectionRef);
+      const flashcards = [];
 
-        if (isMounted) {
-          setShuffledFlashcards(flashcards);
-          setCurrentCardIndex(0);
-          setIsFlipped(false);
-        }
-      })
-      .catch((error) => console.error("Error fetching flashcards:", error));
+      flashcardsQuerySnapshot.forEach((flashcardDoc) => {
+        flashcards.push(flashcardDoc.data());
+      });
+
+      const shuffledFlashcards = isRandomOrder ? shuffleArray(flashcards) : flashcards;
+
+      if (isMounted) {
+        setShuffledFlashcards(shuffledFlashcards);
+        setCurrentCardIndex(0);
+        setIsFlipped(false);
+      }
+    };
+
+    fetchFlashcards().catch((error) => {
+      console.error("Error fetching flashcards:", error);
+    });
 
     return () => {
       isMounted = false;
     };
-  }, [deckName]);
+  }, [deckName, language, isRandomOrder]);
 
   if (shuffledFlashcards.length === 0) {
     return <div>Loading...</div>;

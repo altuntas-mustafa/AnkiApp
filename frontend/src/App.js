@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from '../src/redux/store';
-import Deck from './Components/Deck';
+import Deck from './Components/JS/Deck';
 import Flashcards from './Components/JS/Flashcards';
 import './App.css';
 import AddDeck from './Components/JS/AddDeck';
