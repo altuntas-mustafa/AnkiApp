@@ -67,7 +67,7 @@ const Deck = () => {
             />
           </label>
           <label>
-            Random Side:{" "}
+            Random Sidee:{" "}
             <input
               type="checkbox"
               checked={isFrontDisplayed}
