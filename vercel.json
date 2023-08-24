@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "./build",
+        "use": "@vercel/node@2.0.0",
+        "config": {
+          "NODE_VERSION": "14"
+        }
+      }
+    ],
+    "env": {
+      "EXAMPLE_ENV_VARIABLE": "your-value"
+    }
+  }
+  
