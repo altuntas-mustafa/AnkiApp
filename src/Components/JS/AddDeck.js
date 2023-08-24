@@ -178,7 +178,7 @@ const AddDeck = () => {
                   })
                 }
               >
-                Add Cardd
+                Add Card
               </button>
               <button type="submit" className="create-deck-button">
                 Create Deck
